@@ -1,74 +1,76 @@
 'use strict';
 
-const todoControl = document.querySelector('.todo-control'),
-    headerInput = document.querySelector('.header-input'),
-    todoList = document.querySelector('.todo-list'),
-    todoCompleted = document.querySelector('.todo-completed'),
-    dataLocalStorage = JSON.parse(localStorage.getItem('data'));
+class Todo {
+    constructor(form, input, todoList, todoCompleted) {
+        this.form = document.querySelector(form);
+        this.input = document.querySelector(input);
+        this.todoList = document.querySelector(todoList);
+        this.todoCompleted = document.querySelector(todoCompleted);
+        this.todoData = new Map(JSON.parse(localStorage.getItem('toDoList')));
+    }
 
-const todoData = [];
+    addToStorage() {
+        localStorage.setItem('toDoList', JSON.stringify([...this.todoData]));
+    }
 
-const render = function() {
-    todoList.textContent = '';
-    todoCompleted.textContent = '';
-    todoData.forEach(function(item){
+    render() {
+        this.todoList.textContent = '';
+        this.todoCompleted.textContent = '';
+        this.todoData.forEach(this.createItem);
+        this.addToStorage();
+    }
+
+    createItem = (todo) => {
         const li = document.createElement('li');
         li.classList.add('todo-item');
-        li.innerHTML = '<span class="text-todo">' + item.value + '</span>' +
-            '<div class="todo-buttons">' + 
-                '<button class="todo-remove"></button>' +
-                '<button class="todo-complete"></button>' +
-            '</div>';
-        if (item.completed == true && item.value !== undefined) {
-            todoCompleted.append(li);
-        } else if (item.completed == false && item.value !== undefined) {
-            todoList.append(li);
+        li.insertAdjacentHTML('beforeend', `
+            <span class="text-todo">${todo.value}</span>
+            <div class="todo-buttons">
+                <button class="todo-remove"></button> 
+                <button class="todo-complete"></button> 
+            </div>
+        `);
+
+        (todo.completed) ? this.todoCompleted.append(li) :
+                           this.todoList.append(li);
+    }
+
+    addTodo(e) {
+        e.preventDefault();
+        
+        if (this.input.value.trim()) {
+            const newTodo = {
+                value: this.input.value,
+                completed: false,
+                key: this.generateKey(),
+            };
+            this.todoData.set(newTodo.key, newTodo);
+            this.render();
         }
+    }
 
-        localStorage.setItem('data', JSON.stringify(todoData))
+    generateKey() {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
 
-        const btnTodoComplete = li.querySelector('.todo-complete');
-        btnTodoComplete.addEventListener('click', function(){
-            item.completed = !item.completed;
-            render();
-        });
+    deleteItem() {
 
-        const btnTodoRemove = li.querySelector('.todo-remove');
-        btnTodoRemove.addEventListener('click', function(){
-            delete item.value;
-            delete item.completed;
-            li.parentNode.removeChild(li);
-            render();
-        });
-    });
-};
+    }
 
-const getItemLocalStorage = function() {
-    if (localStorage.getItem('data')) {
-        for (let i = 0; i < Object.keys(dataLocalStorage).length; i++) {
-            const objDataLocalStorage = {
-                value: dataLocalStorage[i].value,
-                completed: dataLocalStorage[i].completed
-            }
-            todoData.push(objDataLocalStorage);
-        }
-    } else {
-        localStorage.setItem('data', JSON.stringify(todoData));
+    completedItem() {
+        
+    }
+
+    handler() {
+        //делегирование
+    }
+
+    init() { 
+        this.form.addEventListener('submit', this.addTodo.bind(this));
+        this.render();
     }
 }
 
-todoControl.addEventListener('submit', function(event){
-    event.preventDefault();
-    if (headerInput.value !== '') {
-        const newToDo = {
-            value: headerInput.value,
-            completed: false
-        }
-        todoData.push(newToDo);
-        headerInput.value = '';
-        render();    
-    }
-});
+const todo = new Todo('.todo-control', '.header-input', '.todo-list', '.todo-completed');
 
-getItemLocalStorage();
-render();
+todo.init();
