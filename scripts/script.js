@@ -1,11 +1,12 @@
 'use strict';
 
 class Todo {
-    constructor(form, input, todoList, todoCompleted) {
+    constructor(form, input, todoList, todoCompleted, todoContainer) {
         this.form = document.querySelector(form);
         this.input = document.querySelector(input);
         this.todoList = document.querySelector(todoList);
         this.todoCompleted = document.querySelector(todoCompleted);
+        this.todoContainer = document.querySelector(todoContainer);
         this.todoData = new Map(JSON.parse(localStorage.getItem('toDoList')));
     }
 
@@ -54,23 +55,33 @@ class Todo {
     }
 
     deleteItem() {
-
+        this.todoData.delete("tx3zq1frxzjhqgkqmlrdbr");
+        // li.parentNode.removeChild(li);
+        this.render();
     }
 
     completedItem() {
-        
+        console.log(this.todoData.value);
+        this.render();
     }
 
-    handler() {
-        //делегирование
+    handler(event) {
+        let target = event.target;  
+        console.log(target); 
+        if (target.classList.contains('todo-remove')) {
+            this.deleteItem();
+        } else if (target.classList.contains('todo-complete')) {
+            this.completedItem();
+        } 
     }
 
     init() { 
         this.form.addEventListener('submit', this.addTodo.bind(this));
+        this.todoContainer.addEventListener('click', this.handler.bind(this));
         this.render();
     }
 }
 
-const todo = new Todo('.todo-control', '.header-input', '.todo-list', '.todo-completed');
+const todo = new Todo('.todo-control', '.header-input', '.todo-list', '.todo-completed', '.todo-container');
 
 todo.init();
