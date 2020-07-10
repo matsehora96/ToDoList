@@ -24,6 +24,7 @@ class Todo {
     createItem = (todo) => {
         const li = document.createElement('li');
         li.classList.add('todo-item');
+        li.key = todo.key;
         li.insertAdjacentHTML('beforeend', `
             <span class="text-todo">${todo.value}</span>
             <div class="todo-buttons">
@@ -54,24 +55,29 @@ class Todo {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     }
 
-    deleteItem() {
-        this.todoData.delete("tx3zq1frxzjhqgkqmlrdbr");
-        // li.parentNode.removeChild(li);
+    deleteItem(key) {
+        this.todoData.delete(key);
         this.render();
     }
 
-    completedItem() {
-        console.log(this.todoData.value);
+    completedItem(key) {
+        let current;
+        this.todoData.forEach((item,index) =>{
+            if (item.key === key) {
+                current = index;
+                this.todoData.get(current).completed = !this.todoData.get(key).completed;
+            }
+        });
         this.render();
     }
 
     handler(event) {
-        let target = event.target;  
-        console.log(target); 
+        const target = event.target;  
+        const currentKey = target.closest('li').key;
         if (target.classList.contains('todo-remove')) {
-            this.deleteItem();
+            this.deleteItem(currentKey);
         } else if (target.classList.contains('todo-complete')) {
-            this.completedItem();
+            this.completedItem(currentKey);
         } 
     }
 
