@@ -40,7 +40,9 @@ class Todo {
     addTodo(e) {
         e.preventDefault();
         
-        if (this.input.value.trim()) {
+        if (this.input.value === '') {
+            alert('Попробуйте еще раз');
+        } else if (this.input.value.trim()){
             const newTodo = {
                 value: this.input.value,
                 completed: false,
